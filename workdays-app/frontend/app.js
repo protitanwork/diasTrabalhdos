@@ -1,4 +1,7 @@
-const API = "http://localhost:3001/api/workdays";
+console.log("app.js carregou ✅");
+
+const API = "http://127.0.0.1:3001/api/workdays";
+
 
 const diaEl = document.getElementById("dia");
 const horasEl = document.getElementById("horas");
@@ -13,6 +16,7 @@ function setMsg(text, type = "") {
 }
 
 async function carregar() {
+  try {
   const [listRes, sumRes] = await Promise.all([
     fetch(API),
     fetch(API + "/summary")
@@ -21,13 +25,20 @@ async function carregar() {
   const lista = await listRes.json();
   const resumo = await sumRes.json();
 
-  summaryEl.textContent = `Total: ${resumo.totalDias} dias e ${resumo.totalHoras} horas.`;
+  summaryEl.textContent = 
+  `Total: ${resumo.totalDias} dias, ${resumo.totalHoras} horas.` +
+  `€ ${Number(resumo.totalGanho || 0).toFixed(2)}.`;
 
   const linhas = lista
-    .map(item => `Dia ${item.dia}: ${item.horas} horas`)
+    .map (item => `Dia ${item.dia}: ${item.horas} horas`)
     .join("\n");
 
   listEl.textContent = linhas || "Sem registros ainda.";
+} catch (e){
+  setMsg("Erro ao carregar: " + e.message, "error");
+    summaryEl.textContent = "";
+    listEl.textContent = "";
+}
 }
 
 btnAdd.addEventListener("click", async () => {
